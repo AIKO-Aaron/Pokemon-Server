@@ -1,0 +1,106 @@
+en_uk=English (UK)
+
+//Type
+
+NULL=WTF
+NORMAL=Normal
+FIGHT=Fight
+AIR=Air
+POISON=Poison
+GROUND=Ground
+ROCK=Rock
+BUG=Bug
+GHOST=Ghost
+STEEL=Steel
+FIRE=Fire
+WATER=Water
+GRASS=Grass
+ELECTRIC=Electric
+PSYCHIC=Psychic
+ICE=Ice
+DRAGON=Dragon
+DARK=Dark
+FAIRY=Fairy
+
+//Moves
+
+
+
+//Pokemon
+
+pok0=WTF
+pok1=Bulbasaur
+pok2=Ivysaur
+pok3=Venusaur
+pok4=Charmander
+pok5=Charmeleon
+pok6=Charizard
+pok7=Squirtle
+pok8=Wartortle
+pok9=Blastoise
+pok10=Caterpie
+pok11=Metapod
+pok12=Butterfree
+pok13=Weedle
+pok14=Kakuna
+pok15=Beedrill
+pok16=Pidgey
+pok17=Pidgeotto
+pok18=Pidgeot
+pok19=Rattata
+pok20=Ratice
+pok21=Spearow
+pok22=Fearow
+pok23=Ekans
+pok24=Arbok
+pok25=Pikachu
+pok26=Raichu
+pok27=Sandshrew
+pok28=Sandslash
+
+//Damage
+
+NO_DAMAGE=No damage
+FOURTH_DAMAGE=Quarter damage
+HALF_DAMAGE=Half damage
+NORMAL_DAMAGE=Normal damage
+DOUBLE_DAMAGE=Double damage
+QUAD_DAMAGE=Quadruple damage
+
+//Misc
+effective=effective
+not=not
+very=very
+super=super
+extremely=extremely
+Damage=Damage
+from=from
+against=against
+is=is
+init=Initialization
+of=of
+moves=moves
+
+//Menus
+
+BAG=Bag
+POKEMON=Pokemon
+POKEDEX=Pokedex
+NAME=Name
+MENU=Menu
+SAVE=Save
+BACK=Back
+SELECTED=(!)
+LANGUAGE=language
+REL_TEX=Reload Textures
+FONT=Font
+
+//Stats
+DEFENSE=Defense
+ATTACK=Attack
+SPECIAL=Special
+
+//Text
+DefaultTrainerText=I'm a Trainer. I want to fight with you. NOW!!!
+Trainer000=Welcome in the world of Pokémon. My name is Oak. No just kidding. I'm the creator of this game AIKO. And I want to battle with you, because what should you do else?
+VOLUME=volume

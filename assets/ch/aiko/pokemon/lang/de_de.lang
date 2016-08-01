@@ -1,0 +1,107 @@
+de_de=Deutsch
+
+//Typen
+
+NULL=WTF
+NORMAL=Normal
+FIGHT=Kampf
+AIR=Flug
+POISON=Gift
+GROUND=Boden
+ROCK=Gestein
+BUG=Käfer
+GHOST=Geist
+STEEL=Stahl
+FIRE=Feuer
+WATER=Wasser
+GRASS=Pflanze
+ELECTRIC=Elektro
+PSYCHIC=Psycho
+ICE=Eis
+DRAGON=Drache
+DARK=Unlicht
+FAIRY=Fee
+
+//Attacken
+
+
+
+//Pokemon
+
+pok0=WTF
+pok1=Bisasam
+pok2=Bisaknosp
+pok3=Bisaflor
+pok4=Glumanda
+pok5=Glutexo
+pok6=Glurak
+pok7=Schiggy
+pok8=Schillok
+pok9=Turtok
+pok10=Raupy
+pok11=Safcon
+pok12=Smettbo
+pok13=Hornliu
+pok14=Kokuna
+pok15=Bibor
+pok16=Taubsi
+pok17=Tauboga
+pok18=Tauboss
+pok19=Rattfratz
+pok20=Rattikarl
+pok21=Habitak
+pok22=Ibitak
+pok23=Rettan
+pok24=Arbok
+pok25=Pikachu
+pok26=Raichu
+pok27=Sandan
+pok28=Sandamer
+
+//Schaden
+
+NO_DAMAGE=Kein Schaden
+FOURTH_DAMAGE=Viertel Schaden
+HALF_DAMAGE=Halber Schaden
+NORMAL_DAMAGE=Normaler Schaden
+DOUBLE_DAMAGE=Doppelter Schaden
+QUAD_DAMAGE=Vierfacher Schaden
+
+//Rest
+effective=Effektiv
+not=nicht
+very=sehr
+super=super
+extremely=extrem
+Damage=Schaden
+from=von
+against=gegen
+is=ist
+init=Initialisierung
+of=der
+moves=Attacken
+
+//Menus
+
+BAG=Beutel
+POKEMON=Pokemon
+POKEDEX=Pokedex
+name=Name
+MENU=Menu
+SAVE=Sichern
+Back=Zurück
+LANGUAGE=Sprache
+SELECTED=(!)
+REL_TEX=Lade Texturen neu
+FONT=Schriftart
+
+//Stats
+DEFENSE=Verteidigung
+ATTACK=Angriff
+SPECIAL=Spezial
+
+
+//Text
+DefaultTrainerText=Hallo. Ich bin ein Trainer. Ich will gegen dich kämpfen. Und zwar JETZT!!!
+Trainer000=Herzlich willkommen in der Welt der Pokemon. Ich bin Professor Eich... Nur Spass ich bin der Ersteller dieses Spieles. Ich selber nenne mich AIKO. Wie du siehst, gibt es nicht all zu viel zu tun. Also lass uns kämpfen!
+VOLUME=Laustärke
