@@ -208,6 +208,65 @@ public class Log extends PrintStream {
 	}
 
 	/**
+	 * Prints a int to the log and adds a new line. The default Level is Info
+	 * 
+	 * @param s
+	 *            The message to print
+	 */
+	public void println(int s) {
+		println(s + "", DEFAULT);
+	}
+
+	/**
+	 * Prints a boolean to the log and adds a new line. The default Level is Info
+	 * 
+	 * @param s
+	 *            The message to print
+	 */
+	public void println(boolean x) {
+		println(x + "", DEFAULT);
+	}
+
+	public void println() {
+		println("");
+	}
+
+	public void println(char x) {
+		println(x + "");
+	}
+
+	public void println(char[] x) {
+		println(new String(x));
+	}
+
+	public void println(double x) {
+		println("" + x);
+	}
+
+	public void println(long x) {
+		println("" + x);
+	}
+	
+	public void println(Object x) {
+		println(x.toString());
+	}
+	
+	public PrintStream append(char c) {
+		print(c);
+		return this;
+	}
+	
+	public PrintStream append(CharSequence csq) {
+		print(csq);
+		return this;
+	}
+	
+	public PrintStream append(CharSequence csq, int start, int end) {
+		print(csq.subSequence(start, end));
+		return this;
+	}
+
+	/**
 	 * Log the message
 	 * 
 	 * @param s

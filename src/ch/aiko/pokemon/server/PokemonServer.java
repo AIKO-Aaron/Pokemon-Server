@@ -12,7 +12,8 @@ public class PokemonServer {
 	public static UpdateHandler handler;
 
 	public static void main(String[] args) {
-		new PokemonServer();
+		//new PokemonServer();
+		new ServerListener();
 	}
 
 	public PokemonServer() {
