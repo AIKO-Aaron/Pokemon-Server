@@ -13,14 +13,15 @@ public class Player extends ASDataType {
 	protected int x = 128, y = 128, dir;
 	// TODO team-pokemon storing...
 
-	public Player() {
-		init("Player");
+	public Player(String uuid) {
+		this.uuid = uuid;
 		if(currentLevel == null) currentLevel = "/ch/aiko/pokemon/level/test.layout";
+		init("Player");
 	}
 	
 	public Player(ASObject obj) {
-		init(obj, "Player");
 		if(currentLevel == null) currentLevel = "/ch/aiko/pokemon/level/test.layout";
+		init(obj, "Player");
 	}
 
 	public void load(ASObject c) {

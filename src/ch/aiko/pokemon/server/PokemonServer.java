@@ -12,8 +12,7 @@ public class PokemonServer {
 	public static UpdateHandler handler;
 
 	public static void main(String[] args) {
-		//new PokemonServer();
-		new ServerListener();
+		new PokemonServer();
 	}
 
 	public PokemonServer() {
@@ -32,6 +31,7 @@ public class PokemonServer {
 
 	private void load() {
 		out.println("Core loading has begun");
+		new ServerListener();
 		Pokemons.init();
 		out.println("Core done loading");
 	}

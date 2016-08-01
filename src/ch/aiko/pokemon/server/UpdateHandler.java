@@ -13,7 +13,17 @@ import ch.aiko.util.FileUtil;
 
 public class UpdateHandler {
 
-	private ArrayList<Player> p = new ArrayList<Player>();
+	public ArrayList<Player> p = new ArrayList<Player>();
+
+	public Player getPlayer(String uuid) {
+		for (Player player : p)
+			if (player.uuid.equals(uuid)) return player;
+		return null;
+	}
+
+	public void addPlayer(Player player) {
+		p.add(player);
+	}
 
 	private Screen screen = new Screen(960, 540) {
 		private static final long serialVersionUID = 1L;
@@ -29,10 +39,19 @@ public class UpdateHandler {
 		}
 
 		public void stopThreads() {
+			savePlayers();
 			update.cancel(false);
 			disp.cancel(true);
 		};
 	};
+
+	private void savePlayers() {
+		ASDataBase base = new ASDataBase("PlayerData");
+		for (Player player : p) {
+			base.addObject(player);
+		}
+		base.saveToFile(FileUtil.getRunningJar().getParent() + "/test.bin");
+	}
 
 	private void registerCommands() {
 		new BasicCommand("ups", "ups", 0, (String[] args, Screen sender) -> {
