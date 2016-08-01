@@ -20,8 +20,8 @@ public class Player extends ASDataType {
 	}
 	
 	public Player(ASObject obj) {
-		if(currentLevel == null) currentLevel = "/ch/aiko/pokemon/level/test.layout";
 		init(obj, "Player");
+		if(currentLevel == null) currentLevel = "/ch/aiko/pokemon/level/test.layout";
 	}
 
 	public void load(ASObject c) {
@@ -31,7 +31,7 @@ public class Player extends ASDataType {
 		ASField yy = c.getField("Y");
 		ASField dd = c.getField("DIR");
 		if (uu != null) uuid = uu.toString();
-		if (pp != null) currentLevel.toString();
+		if (pp != null) currentLevel = pp.toString();
 		if (xx != null) y = SerializationReader.readInt(xx.data, 0);
 		if (yy != null) x = SerializationReader.readInt(yy.data, 0);
 		if (dd != null) dir = SerializationReader.readInt(dd.data, 0);

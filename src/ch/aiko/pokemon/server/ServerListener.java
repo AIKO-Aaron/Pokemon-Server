@@ -48,7 +48,7 @@ public class ServerListener {
 				clients.add(socket.accept());
 				reader.add(new BufferedReader(new InputStreamReader(clients.get(clients.size() - 1).getInputStream())));
 				uuids.add(null);
-				System.out.println("Connected on port: " + clients.get(clients.size() - 1).getPort());
+				PokemonServer.out.println("Connected on port: " + clients.get(clients.size() - 1).getPort());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -73,10 +73,14 @@ public class ServerListener {
 	}
 
 	public void kickUUID(String uuid) {
-
+		int index = uuids.indexOf(uuid);
+		clients.remove(index);
+		uuids.remove(index);
+		reader.remove(index);
 	}
 
 	private void perform(String received, Socket s) {
+		if (!clients.contains(s)) return;
 		if (received.equalsIgnoreCase("/ruuid/")) {
 			String uuid = genUUID();
 			while (existsUUID(uuid))
@@ -93,21 +97,27 @@ public class ServerListener {
 		}
 		if (received.startsWith("/c/")) connect(s, received.substring(3));
 		if (received.startsWith("/slvl/")) {
-			getPlayer(s).currentLevel = received.substring(6);
+			PokemonServer.handler.setPlayerLevel(getUUID(s), received.substring(6));
 		}
-		if(received.startsWith("/spos/")) {
-			Player p = getPlayer(s);
-			p.x = Integer.parseInt(received.substring(6).split("/")[0]);
-			p.y = Integer.parseInt(received.substring(6).split("/")[1]);
-			p.dir = Integer.parseInt(received.substring(6).split("/")[2]);
+		if (received.startsWith("/spos/")) {
+			int x = Integer.parseInt(received.substring(6).split("/")[0]);
+			int y = Integer.parseInt(received.substring(6).split("/")[1]);
+			int dir = Integer.parseInt(received.substring(6).split("/")[2]);
+			PokemonServer.handler.setPlayerPos(getUUID(s), x, y, dir);
 		}
 	}
-	
+
+	public String getUUID(Socket s) {
+		return uuids.get(clients.indexOf(s));
+	}
+
 	public Player getPlayer(Socket s) {
 		return PokemonServer.handler.getPlayer(uuids.get(clients.indexOf(s)));
 	}
 
 	private void connect(Socket s, String uuid) {
+		if (uuids.contains(uuid)) kickUUID(uuid);
+		PokemonServer.out.println("Player connected with uuid: " + uuid);
 		uuids.set(clients.indexOf(s), uuid);
 		if (PokemonServer.handler.getPlayer(uuid) == null) {
 			PokemonServer.handler.addPlayer(new Player(uuid));

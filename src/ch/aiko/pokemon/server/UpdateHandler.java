@@ -15,6 +15,20 @@ public class UpdateHandler {
 
 	public ArrayList<Player> p = new ArrayList<Player>();
 
+	public void setPlayerLevel(String uuid, String level) {
+		for (Player player : p)
+			if (player.uuid.equals(uuid)) player.currentLevel = level;
+	}
+	
+	public void setPlayerPos(String uuid, int x, int y, int dir) {
+		for (Player player : p) 
+			if (player.uuid.equals(uuid)){
+				player.x = x;
+				player.y = y;
+				player.dir = dir;
+			}
+	}
+
 	public Player getPlayer(String uuid) {
 		for (Player player : p)
 			if (player.uuid.equals(uuid)) return player;
@@ -29,8 +43,9 @@ public class UpdateHandler {
 		private static final long serialVersionUID = 1L;
 
 		public Screen startThreads() {
-			ScheduledThreadPoolExecutor exe = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(2);
+			ScheduledThreadPoolExecutor exe = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(3);
 			update = exe.scheduleAtFixedRate(() -> preUpdate(), 0, 1000000000 / 60, TimeUnit.NANOSECONDS);
+			render = exe.scheduleAtFixedRate(() -> savePlayers(), 0, 60, TimeUnit.SECONDS);
 			disp = exe.scheduleAtFixedRate(() -> {
 				lastUPS = ups;
 				ups = 0;
@@ -42,15 +57,18 @@ public class UpdateHandler {
 			savePlayers();
 			update.cancel(false);
 			disp.cancel(true);
+			PokemonServer.out.println("Done");
 		};
 	};
 
 	private void savePlayers() {
 		ASDataBase base = new ASDataBase("PlayerData");
 		for (Player player : p) {
+			player.reload();
 			base.addObject(player);
 		}
-		base.saveToFile(FileUtil.getRunningJar().getParent() + "/test.bin");
+		base.saveToFile(FileUtil.getRunningJar().getParent() + "/players.bin");
+		PokemonServer.out.println("Saved player data...");
 	}
 
 	private void registerCommands() {
@@ -58,17 +76,23 @@ public class UpdateHandler {
 			PokemonServer.out.println("" + sender.lastUPS);
 			return true;
 		});
+
+		new BasicCommand("save", "save", 1, (String[] args, Screen sender) -> {
+			savePlayers();
+			return true;
+		});
 	}
 
 	private void loadPlayers() {
 		// ASDataBase base = new ASDataBase("ServerData");
-		ASDataBase base = ASDataBase.createFromFile(FileUtil.getRunningJar().getParent() + "/test.bin");
+		ASDataBase base = ASDataBase.createFromFile(FileUtil.getRunningJar().getParent() + "/players.bin");
 		if (base == null) base = new ASDataBase("PlayerData");
 
 		for (int i = 0; i < base.objectCount; i++) {
 			ASObject obj = base.objects.get(i);
 			if (obj != null && obj.getName().equals("Player")) {
 				p.add(new Player(obj));
+				PokemonServer.out.println("Found Player:" + p.get(p.size() - 1).uuid);
 			}
 		}
 	}
