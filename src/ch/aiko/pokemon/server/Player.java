@@ -1,5 +1,6 @@
 package ch.aiko.pokemon.server;
 
+import ch.aiko.as.ASDataBase;
 import ch.aiko.as.ASDataType;
 import ch.aiko.as.ASField;
 import ch.aiko.as.ASObject;
@@ -11,6 +12,7 @@ public class Player extends ASDataType {
 	protected String uuid;
 	protected String currentLevel; // Path to level
 	protected int x = 128, y = 128, dir;
+	public boolean online;
 	// TODO team-pokemon storing...
 
 	public Player(String uuid) {
@@ -43,6 +45,12 @@ public class Player extends ASDataType {
 		thisObject.addField(ASField.Integer("X", x));
 		thisObject.addField(ASField.Integer("Y", y));
 		thisObject.addField(ASField.Integer("DIR", dir));
+	}
+	
+	public ASDataBase toBase() {
+		ASDataBase base = new ASDataBase("P");
+		base.addObject(this);
+		return base;
 	}
 
 }

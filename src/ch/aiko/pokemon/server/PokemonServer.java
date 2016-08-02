@@ -10,6 +10,7 @@ public class PokemonServer {
 
 	public static Log out = new Log(PokemonServer.class);
 	public static UpdateHandler handler;
+	public static ServerListener listener;
 
 	public static void main(String[] args) {
 		new PokemonServer();
@@ -31,7 +32,7 @@ public class PokemonServer {
 
 	private void load() {
 		out.println("Core loading has begun");
-		new ServerListener();
+		listener = new ServerListener();
 		Pokemons.init();
 		out.println("Core done loading");
 	}

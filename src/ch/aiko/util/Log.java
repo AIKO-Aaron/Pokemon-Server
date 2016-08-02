@@ -2,6 +2,7 @@ package ch.aiko.util;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -147,8 +148,8 @@ public class Log extends PrintStream {
 	 *            The Level of the Message
 	 */
 	public void print(String s, Level l) {
-		String time = (String.format("%02d", System.currentTimeMillis() / 1000 / 60 / 60 % 24 + (TimeZone.getDefault().inDaylightTime(new Date()) ? 0 : 1))) + ":" + String.format("%02d", System.currentTimeMillis() / 1000 / 60 % 60) + ":" + String.format("%02d", System.currentTimeMillis() / 1000 % 60);
-
+		Calendar cal = Calendar.getInstance();
+		String time = String.format("%02d", cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", cal.get(Calendar.MINUTE)) + ":" + String.format("%02d", cal.get(Calendar.SECOND));		
 		s = "[" + time + "]" + (className != null ? "[" + className + "]" : "") + l.getLevelName() + " " + s;
 
 		if (hasConsoleOutput) l.print(s);

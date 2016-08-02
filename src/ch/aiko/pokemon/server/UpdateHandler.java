@@ -19,10 +19,10 @@ public class UpdateHandler {
 		for (Player player : p)
 			if (player.uuid.equals(uuid)) player.currentLevel = level;
 	}
-	
+
 	public void setPlayerPos(String uuid, int x, int y, int dir) {
-		for (Player player : p) 
-			if (player.uuid.equals(uuid)){
+		for (Player player : p)
+			if (player.uuid.equals(uuid)) {
 				player.x = x;
 				player.y = y;
 				player.dir = dir;
@@ -45,7 +45,7 @@ public class UpdateHandler {
 		public Screen startThreads() {
 			ScheduledThreadPoolExecutor exe = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(3);
 			update = exe.scheduleAtFixedRate(() -> preUpdate(), 0, 1000000000 / 60, TimeUnit.NANOSECONDS);
-			render = exe.scheduleAtFixedRate(() -> savePlayers(), 0, 60, TimeUnit.SECONDS);
+			render = exe.scheduleAtFixedRate(() -> savePlayers(), 0, 10, TimeUnit.SECONDS);
 			disp = exe.scheduleAtFixedRate(() -> {
 				lastUPS = ups;
 				ups = 0;
@@ -68,7 +68,6 @@ public class UpdateHandler {
 			base.addObject(player);
 		}
 		base.saveToFile(FileUtil.getRunningJar().getParent() + "/players.bin");
-		PokemonServer.out.println("Saved player data...");
 	}
 
 	private void registerCommands() {
