@@ -1,5 +1,6 @@
 package ch.aiko.pokemon.graphics;
 
+import ch.aiko.engine.graphics.Layer;
 import ch.aiko.engine.graphics.Renderable;
 import ch.aiko.engine.graphics.Renderer;
 import ch.aiko.engine.graphics.Screen;
@@ -61,7 +62,7 @@ public class GIFAnimation implements Renderable, Updatable {
 		return this;
 	}
 
-	public void update(Screen screen) {
+	public void update(Screen screen, Layer l) {
 		if (lastTime == 0L) lastTime = System.currentTimeMillis();
 		if (System.currentTimeMillis() - lastTime > animation[curIndex].getDelay() * TIME_MOD) {
 			curIndex++;

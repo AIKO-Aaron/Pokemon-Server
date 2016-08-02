@@ -5,6 +5,7 @@ import ch.aiko.as.ASField;
 import ch.aiko.as.ASObject;
 import ch.aiko.as.ASString;
 import ch.aiko.as.SerializationReader;
+import ch.aiko.engine.graphics.Layer;
 import ch.aiko.engine.graphics.Renderable;
 import ch.aiko.engine.graphics.Renderer;
 import ch.aiko.engine.graphics.Screen;
@@ -107,7 +108,11 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		}
 	}
 
-	public void render(Renderer renderer) {}
+	public void render(Renderer renderer) {
+		int x = holder == PokemonType.OWNED ? 200 : (int) (renderer.getWidth() - 250 - animation.getMaxWidth() / 2);
+		int y = holder == PokemonType.OWNED ? renderer.getHeight() - (int) (animation.getMaxHeight() * animation.getScale()) : (int) (310 - animation.getMaxHeight() * animation.getScale());
+		animation.render(renderer, x, y);
+	}
 
 	public void setType(Pokemons t) {
 		type = t;
@@ -120,8 +125,8 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		animation = new GIFAnimation(PokeUtil.getAnimation(type, holder), 0, 0);
 	}
 
-	public void update(Screen screen) {
-		animation.update(screen);
+	public void update(Screen screen, Layer l) {
+		animation.update(screen, l);
 	}
 
 	public void mega() {
@@ -145,8 +150,5 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 	public int getMaxHP() {
 		return maxHP;
 	}
-
-	public void setHP(int i) {healthPoints = i;}
-	public void addHP(int i) {healthPoints += i;}
 
 }
