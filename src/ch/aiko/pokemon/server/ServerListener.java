@@ -7,8 +7,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Random;
+
+import ch.aiko.modloader.LoadedMod;
+import ch.aiko.modloader.ModLoader;
 
 public class ServerListener {
 
@@ -77,7 +81,7 @@ public class ServerListener {
 					if (received == null) continue;
 					perform(received, c);
 				} catch (IOException e) {
-					e.printStackTrace();
+					if (!(e instanceof SocketException)) e.printStackTrace();
 					disconnect(c);
 				}
 			}
@@ -145,6 +149,12 @@ public class ServerListener {
 		send(s, "/pos/" + p.x + "/" + p.y + "/" + p.dir);
 		send(s, "/lvl/" + p.currentLevel);
 
+		String mods = "/mods/" + ModLoader.loadedMods.size() + "\n";
+		for (LoadedMod lm : ModLoader.loadedMods) {
+			mods += lm.modInfoList.get("name") + "=" + lm.modInfoList.get("version") + "\n";
+		}
+		send(s, mods);
+
 		setPositions(s);
 	}
 
@@ -211,15 +221,17 @@ public class ServerListener {
 	}
 
 	private void send(Socket s, String text) {
-		try {
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-			for (String t : text.split("\n")) {
-				writer.write(t + "\n");
-				writer.flush();
+		new Thread(() -> {
+			try {
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+				for (String t : text.split("\n")) {
+					writer.write(t + "\n");
+					writer.flush();
+				}
+			} catch (IOException e) {
+				if (!(e instanceof java.net.SocketException)) e.printStackTrace(PokemonServer.out);
 			}
-		} catch (IOException e) {
-			if (!(e instanceof java.net.SocketException)) e.printStackTrace(PokemonServer.out);
-		}
+		}).start();
 	}
 
 	private String genUUID() {
