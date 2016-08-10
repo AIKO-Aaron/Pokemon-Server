@@ -11,6 +11,7 @@ public class PokemonServer {
 	public static Log out = new Log(PokemonServer.class);
 	public static UpdateHandler handler;
 	public static ServerListener listener;
+	public static int TeamSize = 6;
 
 	public static void main(String[] args) {
 		new PokemonServer();

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import ch.aiko.modloader.ModLoader;
 import ch.aiko.pokemon.graphics.GIF;
 import ch.aiko.pokemon.graphics.TextureLoader;
-import ch.aiko.pokemon.language.Language;
-import ch.aiko.pokemon.server.PokemonServer;
 
 public class PokeUtil {
 
@@ -28,7 +26,6 @@ public class PokeUtil {
 		frontAnimations.add(null);
 		backAnimations.add(null);
 		++MAX_POKEMON;
-		PokemonServer.out.println("Registered: " + Language.translate(p.getName()));
 	}
 
 	public static void registerPokemon(Pokemons p, Class<?> loader) {
@@ -36,7 +33,6 @@ public class PokeUtil {
 		frontAnimations.add(null);
 		backAnimations.add(null);
 		++MAX_POKEMON;
-		PokemonServer.out.println("Registered: " + Language.translate(p.getName()));
 	}
 
 	public static void loadEmAll() {
@@ -46,7 +42,6 @@ public class PokeUtil {
 			ModLoader.CoreInit = "Loading sprites for: " + p.getName();
 			frontAnimations.set(i, TextureLoader.loadGIF(p.getPathToAnimation(PokemonType.ENEMY), SCALE).replaceColor(0xFFFFFFFF, 0));
 			backAnimations.set(i, TextureLoader.loadGIF(p.getPathToAnimation(PokemonType.OWNED), SCALE * OWN_MOD).replaceColor(0xFFFFFFFF, 0));
-			PokemonServer.out.println("Loaded: " + Language.translate(p.getName()));
 			index++;
 			ModLoader.bar3.setValue(100 * index / MAX_POKEMON);
 		}
@@ -61,7 +56,6 @@ public class PokeUtil {
 		int indexOf = pokemons.indexOf(p);
 		frontAnimations.set(indexOf, TextureLoader.loadGIF(p.getPathToAnimation(PokemonType.ENEMY), SCALE).replaceColor(0xFFFFFFFF, 0));
 		backAnimations.set(indexOf, TextureLoader.loadGIF(p.getPathToAnimation(PokemonType.OWNED), SCALE * OWN_MOD).replaceColor(0xFFFFFFFF, 0));
-		PokemonServer.out.println("Loaded: " + Language.translate(p.getName()));
 	}
 
 	public static GIF getFrontAnimation(Pokemons p) {
@@ -87,9 +81,10 @@ public class PokeUtil {
 	}
 
 	public static PokemonType getType(int readInt) {
-		if (types.size() > readInt && types.get(readInt).in == readInt) return types.get(readInt);
-		for (PokemonType p : types) {
-			if (p.in == readInt) return p;
+		switch(readInt) {
+			case 0: return PokemonType.ENEMY;
+			case 1: return PokemonType.WILD;
+			case 2: return PokemonType.OWNED;
 		}
 		return PokemonType.ENEMY;
 	}

@@ -2,6 +2,7 @@ package ch.aiko.pokemon.server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -9,8 +10,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
+import ch.aiko.as.ASDataBase;
 import ch.aiko.modloader.LoadedMod;
 import ch.aiko.modloader.ModLoader;
 
@@ -18,12 +21,13 @@ public class ServerListener {
 
 	public static final int PORT = 4732;
 
-	protected boolean running = false;
-	protected Thread acceptor, receiver;
+	protected boolean running = false, sending;
+	protected Thread acceptor, receiver, sender;
 	protected ServerSocket socket;
 	protected ArrayList<BufferedReader> reader = new ArrayList<BufferedReader>();
 	protected ArrayList<Socket> clients = new ArrayList<Socket>();
 	protected ArrayList<String> uuids = new ArrayList<String>();
+	protected HashMap<Socket, ArrayList<String>> texts = new HashMap<Socket, ArrayList<String>>();
 
 	public ServerListener() {
 		running = true;
@@ -34,9 +38,11 @@ public class ServerListener {
 		}
 		acceptor = new Thread(() -> accept());
 		receiver = new Thread(() -> receive());
+		sender = new Thread(() -> sendText());
 		PokemonServer.out.println("Listening on port:" + PORT);
 		acceptor.start();
 		receiver.start();
+		sender.start();
 	}
 
 	public boolean existsUUID(String uuid) {
@@ -50,10 +56,11 @@ public class ServerListener {
 		while (running) {
 			try {
 				Socket s = socket.accept();
-				clients.add(s);
-				reader.add(new BufferedReader(new InputStreamReader(s.getInputStream())));
+				texts.put(s, new ArrayList<String>());
 				uuids.add(null);
 				PokemonServer.out.println("Connected on port: " + s.getPort());
+				reader.add(new BufferedReader(new InputStreamReader(s.getInputStream())));
+				clients.add(s);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -64,7 +71,7 @@ public class ServerListener {
 		while (running) {
 			if (reader.size() == 0) {
 				try {
-					Thread.sleep(10);
+					Thread.sleep(100);
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
@@ -78,7 +85,7 @@ public class ServerListener {
 				if (c == null || r == null) continue;
 				try {
 					String received = r.readLine();
-					if (received == null) continue;
+					if (received == null || received.equalsIgnoreCase("")) continue;
 					perform(received, c);
 				} catch (IOException e) {
 					if (!(e instanceof SocketException)) e.printStackTrace();
@@ -127,6 +134,11 @@ public class ServerListener {
 		if (received.equalsIgnoreCase("/q/")) {
 			disconnect(s);
 		}
+		if (received.equalsIgnoreCase("/rec/")) {
+			finishUp(s);
+		}
+
+		// TODO sync pokemon team
 	}
 
 	public String getUUID(Socket s) {
@@ -146,8 +158,24 @@ public class ServerListener {
 		p = PokemonServer.handler.getPlayer(uuid);
 		p.online = true;
 
-		send(s, "/pos/" + p.x + "/" + p.y + "/" + p.dir);
-		send(s, "/lvl/" + p.currentLevel);
+		// send(s, "/pos/" + p.x + "/" + p.y + "/" + p.dir);
+		// send(s, "/lvl/" + p.currentLevel);
+
+		ASDataBase base = p.toBase();
+		byte[] bytes = new byte[base.getSize()];
+		base.getBytes(bytes, 0);
+
+		send(s, "/SOPD/" + bytes.length);
+	}
+
+	private void finishUp(Socket s) {
+		Player p = getPlayer(s);
+
+		ASDataBase base = p.toBase();
+		byte[] bytes = new byte[base.getSize()];
+		base.getBytes(bytes, 0);
+		sendBytes(s, bytes);
+		send(s, "/EOPD/");
 
 		String mods = "/mods/" + ModLoader.loadedMods.size() + "\n";
 		for (LoadedMod lm : ModLoader.loadedMods) {
@@ -220,18 +248,40 @@ public class ServerListener {
 		uuids.remove(index);
 	}
 
-	private void send(Socket s, String text) {
-		new Thread(() -> {
-			try {
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-				for (String t : text.split("\n")) {
-					writer.write(t + "\n");
-					writer.flush();
+	public void send(Socket s, String text) {
+		texts.get(s).add(text);
+	}
+
+	private void sendText() {
+		sending = true;
+		while (sending) {
+			for (int i = 0; i < clients.size(); i++) {
+				Socket s = clients.get(i);
+				if (s == null) continue;
+				ArrayList<String> textsToSend = texts.get(s);
+				if (textsToSend == null || textsToSend.size() <= 0) continue;
+				try {
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+					String text = textsToSend.get(0);
+					for (String t : text.split("\n")) {
+						writer.write(t + "\n");
+						writer.flush();
+					}
+					texts.get(s).remove(0);
+				} catch (IOException e) {
+					e.printStackTrace(PokemonServer.out);
 				}
-			} catch (IOException e) {
-				if (!(e instanceof java.net.SocketException)) e.printStackTrace(PokemonServer.out);
 			}
-		}).start();
+		}
+	}
+
+	public void sendBytes(Socket s, byte[] bytes) {
+		if (s == null) return;
+		try {
+			new DataOutputStream(s.getOutputStream()).write(bytes, 0, bytes.length);
+		} catch (Throwable e) {
+			if (!(e instanceof SocketException)) e.printStackTrace(PokemonServer.out);
+		}
 	}
 
 	private String genUUID() {

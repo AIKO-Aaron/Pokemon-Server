@@ -10,12 +10,9 @@ import ch.aiko.engine.graphics.Renderable;
 import ch.aiko.engine.graphics.Renderer;
 import ch.aiko.engine.graphics.Screen;
 import ch.aiko.engine.graphics.Updatable;
-import ch.aiko.pokemon.graphics.GIFAnimation;
 import ch.aiko.pokemon.server.PokemonServer;
 
 public class TeamPokemon extends ASDataType implements Renderable, Updatable {
-
-	protected GIFAnimation animation;
 
 	protected PokemonType holder;
 	protected Pokemons type;
@@ -50,8 +47,6 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		this.speed = speed;
 		this.xp = xp;
 		level = (int) Math.pow(xp, 1F / 3F);
-
-		animation = new GIFAnimation(PokeUtil.getAnimation(type, holder), 0, 0);
 	}
 
 	public void load(ASObject c) {
@@ -68,8 +63,6 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		nickname = c.getString("NCN").toString();
 
 		level = (int) Math.pow(xp, 1F / 3F);
-		//animation = new GIFAnimation(type.getPathToAnimation(holder), 0, 0, holder == PokemonType.OWNED ? OWN_MOD * SCALE : SCALE).replaceColor(0xFFFFFFFF, 0);
-		animation = new GIFAnimation(PokeUtil.getAnimation(type, holder), 0, 0);
 	}
 
 	public void getData(ASObject thisObject) {
@@ -87,12 +80,12 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 	}
 
 	public void gainXP(int amount) {
-		if(xp >= 1000000) return;
+		if (xp >= 1000000) return;
 		xp += amount;
-		if(xp >= 1000000) xp = 1000000;
+		if (xp >= 1000000) xp = 1000000;
 		int ol = level;
 		level = (int) Math.pow(xp, 1F / 3F);
-		if(level > ol) System.out.println("Level up to: " + level);
+		if (level > ol) System.out.println("Level up to: " + level);
 		if (type.canEvolve(level)) evolve();
 	}
 
@@ -109,25 +102,19 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 	}
 
 	public void render(Renderer renderer) {
-		int x = holder == PokemonType.OWNED ? 200 : (int) (renderer.getWidth() - 250 - animation.getMaxWidth() / 2);
-		int y = holder == PokemonType.OWNED ? renderer.getHeight() - (int) (animation.getMaxHeight() * animation.getScale()) : (int) (310 - animation.getMaxHeight() * animation.getScale());
-		animation.render(renderer, x, y);
+
 	}
 
 	public void setType(Pokemons t) {
 		type = t;
-		animation = new GIFAnimation(PokeUtil.getAnimation(type, holder), 0, 0);
 	}
 
 	public void advance() {
 		if (type.isMegaEvolution()) type = PokeUtil.get(type.getChild().getPokedexNumber() + 1);
 		else type = PokeUtil.get(type.getPokedexNumber() + 1);
-		animation = new GIFAnimation(PokeUtil.getAnimation(type, holder), 0, 0);
 	}
 
-	public void update(Screen screen, Layer l) {
-		animation.update(screen, l);
-	}
+	public void update(Screen screen, Layer l) {}
 
 	public void mega() {
 		if (type.hasMegaEvolution()) {
