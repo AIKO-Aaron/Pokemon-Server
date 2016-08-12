@@ -1,11 +1,12 @@
 package ch.aiko.pokemon.pokemons;
 
+import static ch.aiko.pokemon.basic.ModUtils.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 import ch.aiko.pokemon.attacks.Attack;
-import static ch.aiko.modloader.ModUtils.*;
 
 public class Pokemons {
 	

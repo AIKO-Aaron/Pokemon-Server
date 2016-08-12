@@ -11,6 +11,7 @@ public class LoadedMod {
 	public ArrayList<Method> preInits = new ArrayList<>();
 	public ArrayList<Method> Inits = new ArrayList<>();
 	public ArrayList<Method> postInits = new ArrayList<>();
+	public HashMap<String, ArrayList<Method>> events = new HashMap<>();
 	public ModInfo modInfoList = null;
 	public HashMap<String, Object> instances = new HashMap<>();
 	public ClassLoader loader;

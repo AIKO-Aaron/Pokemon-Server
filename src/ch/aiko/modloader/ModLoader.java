@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -53,15 +52,17 @@ public class ModLoader {
 
 	public static JProgressBar bar3;
 
-	public static final void loadMods(Log ps, String dir, Runnable initCore) {
+	public static Log log = new Log(ModLoader.class);
+
+	public static final void loadMods(String dir, Runnable initCore) {
 		new Thread(() -> displayStatus()).start();
-		findMethods(ps, dir);
-		preInit(ps);
+		findMethods(dir);
+		preInit();
 		initCore.run();
-		start(ps);
+		start();
 	}
 
-	private static void findMethods(Log ps, String dir) {
+	private static void findMethods(String dir) {
 		ArrayList<Class<?>> classesAnnotated = new ArrayList<>();
 
 		File parent = new File(dir);
@@ -79,7 +80,7 @@ public class ModLoader {
 			++CurrentFile;
 			CurrentFileName = f.getAbsolutePath();
 			currentMod.pathToJar = f.getAbsolutePath();
-			ps.println("Loading File: " + CurrentFile + "/" + potentialMods.length + ": " + CurrentFileName);
+			log.println("Loading File: " + CurrentFile + "/" + FileIndex + ": " + CurrentFileName);
 
 			JarFile file = null;
 			URLClassLoader cl = null;
@@ -89,7 +90,7 @@ public class ModLoader {
 				cl = new URLClassLoader(new URL[] { new URL("jar:file:" + f.getAbsolutePath() + "!/") }, ClassLoader.getSystemClassLoader());
 				file = new JarFile(f);
 			} catch (Throwable t) {
-				t.printStackTrace(ps);
+				t.printStackTrace(log);
 			}
 
 			currentMod.loader = cl;
@@ -102,7 +103,7 @@ public class ModLoader {
 					if (currentMod.modInfoList == null) {
 						currentMod.modInfoList = new ModInfo(cl.getResourceAsStream(nextElement.getName()));
 					} else {
-						ps.err("Each mod requires only one modInfoList (.amf)");
+						log.err("Each mod requires only one modInfoList (.amf)");
 					}
 					foundInfo = true;
 				}
@@ -112,12 +113,12 @@ public class ModLoader {
 			currentMod.name = currentMod.modInfoList.get("name");
 			if (currentMod.name.equals("name")) currentMod.name = "Add a name in the .amf file: name=<insertNameHere>";
 
-			ps.println("Loading Mod: " + currentMod);
+			log.println("Loading Mod: " + currentMod);
 
 			try {
 				ALL_MOD_FILES.add(new URL("jar:file:" + f.getAbsolutePath() + "!/"));
 			} catch (MalformedURLException e) {
-				e.printStackTrace(ps);
+				e.printStackTrace(log);
 			}
 
 			pool.appendClassPath(new ClassClassPath(Mod.class));
@@ -135,7 +136,7 @@ public class ModLoader {
 						try {
 							possibleClasses.add(Class.forName(className, false, cl));
 						} catch (Throwable e) {
-							e.printStackTrace(ps);
+							e.printStackTrace(log);
 						}
 					}
 				}
@@ -147,18 +148,32 @@ public class ModLoader {
 			possibleClasses.stream().map((c) -> {
 				++CurrentClass;
 				CurrentClassName = c.getName();
-				ps.println("Loading Class: " + CurrentClass + "/" + ClassIndex + ": " + CurrentClassName);
+				log.println("Loading Class: " + CurrentClass + "/" + ClassIndex + ": " + CurrentClassName);
 				return c;
 			}).forEach((Class<?> c) -> {
 				try {
 					CtClass clazz = pool.get(c.getName());
+					for (CtMethod m : clazz.getMethods()) {
+						Event e;
+						if ((e = (Event) m.getAnnotation(Event.class)) != null) {
+							String[] keys = e.listeningFor();
+							for (String key : keys) {
+								ArrayList<Method> methods = currentMod.events.get(key);
+								if (methods == null) methods = new ArrayList<>();
+								if (m.getParameterTypes().length == 0) methods.add(c.getMethod(m.getName(), new Class[] {}));
+								else methods.add(c.getMethod(m.getName(), new Class[] { GameEvent.class }));
+								currentMod.events.put(key, methods);
+							}
+						}
+					}
+
 					for (CtField field : clazz.getFields()) {
 						if (field.getAnnotation(Instance.class) != null) {
 							Object inst = null;
 							try {
 								inst = c.getField(field.getName()).get(null);
 							} catch (Throwable e) {
-								e.printStackTrace(ps);
+								e.printStackTrace(log);
 							}
 							if (inst != null) {
 								currentMod.instances.put(c.getName(), inst);
@@ -182,14 +197,14 @@ public class ModLoader {
 						}
 					}
 				} catch (NotFoundException | ClassNotFoundException | SecurityException | NoSuchMethodException e) {
-					e.printStackTrace(ps);
+					e.printStackTrace(log);
 				}
 			});
 
 			try {
 				file.close();
 			} catch (IOException e) {
-				e.printStackTrace(ps);
+				e.printStackTrace(log);
 			}
 
 			loadedMods.add(currentMod);
@@ -338,34 +353,36 @@ public class ModLoader {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	private static Object getInstanceOf(PrintStream ps, LoadedMod lm, Method m) {
+	private static Object getInstanceOf(LoadedMod lm, Method m) {
 		if (lm.instances.containsKey(m.getDeclaringClass().getName())) { return lm.instances.get(m.getDeclaringClass().getName()); }
 		Object instance = null;
 		try {
 			instance = m.getDeclaringClass().newInstance();
 		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException e1) {
-			ps.println("Couldn't read @instance in your class nor could it be instanziated. Mod will not be loaded...");
+			log.println("Couldn't read @instance in your class nor could it be instanziated. Mod will not be loaded...");
 		}
 		return instance;
 	}
 
-	private static void preInit(Log ps) {
-		for (LoadedMod lm : loadedMods) {
+	private static void preInit() {
+		for (int i = 0; i < loadedMods.size(); i++) {
+			LoadedMod lm = loadedMods.get(i);
+			if (lm == null) continue;
 			if (lm.preInits.size() > 0) {
 				Status = 4;
 				InitIndex = 0;
 				lm.preInits.stream().forEach((Method m) -> {
 					try {
-						Object instance = getInstanceOf(ps, lm, m);
+						Object instance = getInstanceOf(lm, m);
 						try {
 							++InitIndex;
-							if (bar3 != null) bar3.setValue(0);
+							if(bar3 != null) bar3.setValue(0);
 							m.invoke(instance, new Object[] {});
-							if (bar3 != null) bar3.setValue(100);
+							if(bar3 != null) bar3.setValue(100);
 						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
 					} catch (Throwable t) {
-						t.printStackTrace(ps);
-						ps.err("Error loading mod: " + lm.name + ". Error whilst pre-initialization");
+						log.err("Error loading mod: " + lm.name + ". Error whilst pre-initialization: " + t);
+						t.printStackTrace(log);
 						loadedMods.remove(lm);
 					}
 				});
@@ -373,7 +390,7 @@ public class ModLoader {
 		}
 	}
 
-	private static void start(Log ps) {
+	private static void start() {
 		for (LoadedMod lm : loadedMods) {
 
 			if (lm.Inits.size() > 0) {
@@ -381,15 +398,15 @@ public class ModLoader {
 				InitIndex = 0;
 				lm.Inits.stream().forEach((Method m) -> {
 					try {
-						Object instance = getInstanceOf(ps, lm, m);
+						Object instance = getInstanceOf(lm, m);
 						try {
 							++InitIndex;
-							if (bar3 != null) bar3.setValue(0);
+							if(bar3 != null) bar3.setValue(0);
 							m.invoke(instance, new Object[] {});
-							if (bar3 != null) bar3.setValue(100);
+							if(bar3 != null) bar3.setValue(100);
 						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
 					} catch (Throwable t) {
-						ps.err("Error loading mod: " + lm.name + ". Error whilst initialization");
+						log.err("Error loading mod: " + lm.name + ". Error whilst initialization");
 						loadedMods.remove(lm);
 					}
 				});
@@ -402,20 +419,44 @@ public class ModLoader {
 				InitIndex = 0;
 				lm.postInits.stream().forEach((Method m) -> {
 					try {
-						Object instance = getInstanceOf(ps, lm, m);
+						Object instance = getInstanceOf(lm, m);
 						try {
 							++InitIndex;
-							if (bar3 != null) bar3.setValue(0);
+							if(bar3 != null) bar3.setValue(0);
 							m.invoke(instance, new Object[] {});
-							if (bar3 != null) bar3.setValue(100);
+							if(bar3 != null) bar3.setValue(100);
 						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
 					} catch (Throwable t) {
-						ps.err("Error loading mod: " + lm.name + ". Error whilst post-initialization");
+						log.err("Error loading mod: " + lm.name + ". Error whilst post-initialization");
 						loadedMods.remove(lm);
 					}
 				});
 			}
 		}
 		Status = 7;
+	}
+
+	public static void performEvent(GameEvent evt) {
+		for (LoadedMod mod : loadedMods) {
+			if (mod != null && mod.events != null && mod.events.containsKey(evt.eventName())) {
+				for (Method m : mod.events.get(evt.eventName())) {
+					executeEvent(m, mod, evt);
+				}
+			}
+		}
+	}
+
+	private static void executeEvent(Method m, LoadedMod mod, GameEvent evt) {
+		try {
+			if (m.getParameterCount() == 0) m.invoke(getInstanceOf(mod, m));
+			else if (m.getParameterCount() == 1) m.invoke(getInstanceOf(mod, m), evt);
+			else log.err("Couldn't invoke: " + m.getName() + " because the argument count was wrong!");
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 }

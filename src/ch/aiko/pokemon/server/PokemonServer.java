@@ -25,7 +25,7 @@ public class PokemonServer {
 		boolean isDir = FileUtil.getRunningJar().isDirectory();
 
 		out.println("Starting Modloader...");
-		ModLoader.loadMods(out, (isDir ? FileUtil.getRunningJar().getParent() : FileUtil.getRunningJar().getAbsolutePath()) + "/mods/", () -> load());
+		ModLoader.loadMods((isDir ? FileUtil.getRunningJar().getParent() : FileUtil.getRunningJar().getAbsolutePath()) + "/mods/", () -> load());
 		out.println("Done loading mods. Starting threads...");
 
 		ModLoader.Status = 7;
