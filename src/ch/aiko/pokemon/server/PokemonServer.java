@@ -1,6 +1,7 @@
 package ch.aiko.pokemon.server;
 
 import ch.aiko.modloader.ModLoader;
+import ch.aiko.pokemon.attacks.Attack;
 import ch.aiko.pokemon.language.Language;
 import ch.aiko.pokemon.pokemons.Pokemons;
 import ch.aiko.util.FileUtil;
@@ -19,6 +20,7 @@ public class PokemonServer {
 
 	public PokemonServer() {
 		Language.setup();
+		Attack.init();
 
 		boolean isDir = FileUtil.getRunningJar().isDirectory();
 

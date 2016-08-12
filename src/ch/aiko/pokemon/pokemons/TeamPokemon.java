@@ -10,6 +10,8 @@ import ch.aiko.engine.graphics.Renderable;
 import ch.aiko.engine.graphics.Renderer;
 import ch.aiko.engine.graphics.Screen;
 import ch.aiko.engine.graphics.Updatable;
+import ch.aiko.pokemon.attacks.Attack;
+import ch.aiko.pokemon.attacks.AttackUtil;
 import ch.aiko.pokemon.server.PokemonServer;
 
 public class TeamPokemon extends ASDataType implements Renderable, Updatable {
@@ -17,6 +19,7 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 	protected PokemonType holder;
 	protected Pokemons type;
 	protected String nickname;
+	private Attack[] moveSet;
 
 	// STATS
 	protected int healthPoints;
@@ -33,7 +36,7 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		init(obj1);
 	}
 
-	public TeamPokemon(Pokemons type, PokemonType holder, String nickname, int hp, int maxHP, int atk, int satk, int def, int sdef, int speed, int xp) {
+	public TeamPokemon(Pokemons type, PokemonType holder, String nickname, Attack[] moveSet, int hp, int maxHP, int atk, int satk, int def, int sdef, int speed, int xp) {
 		this.name = "Pok";
 		this.healthPoints = hp;
 		this.maxHP = maxHP;
@@ -47,6 +50,7 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		this.speed = speed;
 		this.xp = xp;
 		level = (int) Math.pow(xp, 1F / 3F);
+		this.setMoveSet(moveSet);
 	}
 
 	public void load(ASObject c) {
@@ -61,7 +65,13 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		type = PokeUtil.get(SerializationReader.readInt(c.getField("NUM").data, 0));
 		holder = PokeUtil.getType(SerializationReader.readInt(c.getField("TYP").data, 0));
 		nickname = c.getString("NCN").toString();
-
+		ASObject atks = c.getObject("ATKS");
+		if (atks != null) {
+			moveSet = (new Attack[atks.stringCount]);
+			for (int i = 0; i < getMoveSet().length; i++) {
+				moveSet[i] = AttackUtil.getAttack(atks.strings.get(i).toString());
+			}
+		} else moveSet = new Attack[] { AttackUtil.getAttack("Tackle"), AttackUtil.getAttack("Flammenwurf") };
 		level = (int) Math.pow(xp, 1F / 3F);
 	}
 
@@ -77,6 +87,11 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		thisObject.addField(ASField.Integer("NUM", type.getPokedexNumber()));
 		thisObject.addField(ASField.Integer("TYP", holder.in));
 		thisObject.addString(ASString.Create("NCN", nickname.toCharArray()));
+		ASObject atks = new ASObject("ATKS");
+		for (Attack a : getMoveSet()) {
+			atks.addString(ASString.Create("MOVE", a.attackName));
+		}
+		thisObject.addObject(atks);
 	}
 
 	public void gainXP(int amount) {
@@ -101,9 +116,8 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		}
 	}
 
-	public void render(Renderer renderer) {
-
-	}
+	@Override
+	public void render(Renderer renderer) {}
 
 	public void setType(Pokemons t) {
 		type = t;
@@ -114,6 +128,7 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		else type = PokeUtil.get(type.getPokedexNumber() + 1);
 	}
 
+	@Override
 	public void update(Screen screen, Layer l) {}
 
 	public void mega() {
@@ -136,6 +151,22 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 
 	public int getMaxHP() {
 		return maxHP;
+	}
+
+	public void setHP(int i) {
+		healthPoints = i;
+	}
+
+	public void addHP(int i) {
+		healthPoints += i;
+	}
+
+	public Attack[] getMoveSet() {
+		return moveSet;
+	}
+
+	public void setMoveSet(Attack[] moveSet) {
+		this.moveSet = moveSet;
 	}
 
 }

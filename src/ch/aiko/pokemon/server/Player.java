@@ -6,6 +6,9 @@ import ch.aiko.as.ASField;
 import ch.aiko.as.ASObject;
 import ch.aiko.as.ASString;
 import ch.aiko.as.SerializationReader;
+import ch.aiko.pokemon.attacks.Attack;
+import ch.aiko.pokemon.pokemons.PokemonType;
+import ch.aiko.pokemon.pokemons.Pokemons;
 import ch.aiko.pokemon.pokemons.TeamPokemon;
 
 public class Player extends ASDataType {
@@ -47,6 +50,10 @@ public class Player extends ASDataType {
 			for (int i = 0; i < teamP.objectCount; i++) {
 				ASObject obj = teamP.objects.get(i);
 				if (obj != null) team[index++] = new TeamPokemon(obj);
+			}
+			if(index == 0) {
+				team = new TeamPokemon[PokemonServer.TeamSize];
+				team[0] = new TeamPokemon(Pokemons.get(6), PokemonType.OWNED, "Pokemon", new Attack[4], 5, 10, 10, 10, 10, 10, 10, 10);
 			}
 		}
 	}

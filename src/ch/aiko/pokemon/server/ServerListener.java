@@ -137,8 +137,6 @@ public class ServerListener {
 		if (received.equalsIgnoreCase("/rec/")) {
 			finishUp(s);
 		}
-
-		// TODO sync pokemon team
 	}
 
 	public String getUUID(Socket s) {
@@ -157,9 +155,6 @@ public class ServerListener {
 		if (p == null) PokemonServer.handler.addPlayer(new Player(uuid));
 		p = PokemonServer.handler.getPlayer(uuid);
 		p.online = true;
-
-		// send(s, "/pos/" + p.x + "/" + p.y + "/" + p.dir);
-		// send(s, "/lvl/" + p.currentLevel);
 
 		ASDataBase base = p.toBase();
 		byte[] bytes = new byte[base.getSize()];
@@ -263,7 +258,7 @@ public class ServerListener {
 				try {
 					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
 					String text = textsToSend.get(0);
-					for (String t : text.split("\n")) {
+					if (text != null) for (String t : text.split("\n")) {
 						writer.write(t + "\n");
 						writer.flush();
 					}
