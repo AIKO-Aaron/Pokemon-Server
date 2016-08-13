@@ -32,7 +32,9 @@ public class PokemonClient {
 	@SuppressWarnings("unused")
 	private boolean receivingPlayers = false;
 
-	public PokemonClient(String connectTo, String uuid) {}
+	public PokemonClient(String connectTo, String uuid) {
+		PokemonServer.out.warn("This won't work. This is only for the client");
+	}
 
 	public void sendText(String text) {}
 

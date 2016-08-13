@@ -19,6 +19,7 @@ import ch.aiko.pokemon.graphics.menu.Menu;
 import ch.aiko.pokemon.pokemons.PokemonType;
 import ch.aiko.pokemon.pokemons.Pokemons;
 import ch.aiko.pokemon.pokemons.TeamPokemon;
+import ch.aiko.pokemon.server.PokemonServer;
 
 public class Fight extends LayerContainer {
 
@@ -42,6 +43,8 @@ public class Fight extends LayerContainer {
 
 		pok1 = p.team[0];
 		pok2 = t.team[0];
+		
+		PokemonServer.out.warn("Why are you trying to fight on the server end?");
 
 		addLayer(new LayerBuilder().setLayer(5).setRenderable(pok1).setUpdatable(pok1).toLayer());
 		addLayer(new LayerBuilder().setLayer(5).setRenderable(pok2).setUpdatable(pok2).toLayer());

@@ -9,6 +9,7 @@ import ch.aiko.modloader.GameEvent;
 import ch.aiko.modloader.LoadedMod;
 import ch.aiko.modloader.ModLoader;
 import ch.aiko.pokemon.attacks.Attack;
+import ch.aiko.pokemon.attacks.AttackUtil;
 import ch.aiko.pokemon.language.Language;
 import ch.aiko.pokemon.pokemons.PokeUtil;
 import ch.aiko.pokemon.pokemons.Pokemons;
@@ -65,6 +66,13 @@ public class ModUtils {
 		Pokemons orig = PokeUtil.get(origPokemon);
 		Pokemons mega = new Pokemons(name, orig.getMegaEvolutions().size() + 1, origPokemon);
 		orig.addMegaEvolution(mega);
+	}
+	
+	public static Attack[] convertToAttacks(String... strings) {
+		Attack[] attacks = new Attack[strings.length];
+		for (int i = 0; i < attacks.length; i++)
+			attacks[i] = AttackUtil.getAttack(strings[i]);
+		return attacks;
 	}
 
 	public static void executeOnServerOnly(Runnable r) {

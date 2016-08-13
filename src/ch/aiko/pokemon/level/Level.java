@@ -113,6 +113,7 @@ public class Level extends LayerContainer {
 			}
 			tiles.add(current);
 		}
+		PokemonServer.out.warn("Why are you loading the level on the server?");
 		PokemonServer.out.println("Loaded " + layerCount + " layers for the level, with a total of " + (fieldWidth * fieldHeight * layerCount) + " tiles, but only " + addedTiles + " tiles were added");
 	}
 
