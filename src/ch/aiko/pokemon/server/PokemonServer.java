@@ -2,6 +2,7 @@ package ch.aiko.pokemon.server;
 
 import ch.aiko.modloader.ModLoader;
 import ch.aiko.pokemon.attacks.Attack;
+import ch.aiko.pokemon.basic.PokemonEvents;
 import ch.aiko.pokemon.language.Language;
 import ch.aiko.pokemon.pokemons.Pokemons;
 import ch.aiko.util.FileUtil;
@@ -38,6 +39,7 @@ public class PokemonServer {
 		listener = new ServerListener();
 		Pokemons.init();
 		out.println("Core done loading");
+		ModLoader.performEvent(new PokemonEvents.ServerStartEvent());
 	}
 
 }

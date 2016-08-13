@@ -11,22 +11,22 @@ import ch.aiko.pokemon.pokemons.PokemonType;
 import ch.aiko.pokemon.pokemons.Pokemons;
 import ch.aiko.pokemon.pokemons.TeamPokemon;
 
-public class Player extends ASDataType {
+public class ServerPlayer extends ASDataType {
 
-	protected String uuid;
-	protected String currentLevel; // Path to level
-	protected int x = 128, y = 128, dir;
+	public String uuid;
+	public String currentLevel; // Path to level
+	public int x = 128, y = 128, dir;
 	public boolean online;
 	// TODO team-pokemon storing...
 	public TeamPokemon[] team = new TeamPokemon[PokemonServer.TeamSize];
 
-	public Player(String uuid) {
+	public ServerPlayer(String uuid) {
 		this.uuid = uuid;
 		if (currentLevel == null) currentLevel = "/ch/aiko/pokemon/level/test.layout";
 		init("Player");
 	}
 
-	public Player(ASObject obj) {
+	public ServerPlayer(ASObject obj) {
 		init(obj, "Player");
 		if (currentLevel == null) currentLevel = "/ch/aiko/pokemon/level/test.layout";
 	}

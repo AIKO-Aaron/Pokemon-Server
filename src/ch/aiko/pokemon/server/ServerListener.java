@@ -16,6 +16,7 @@ import java.util.Random;
 import ch.aiko.as.ASDataBase;
 import ch.aiko.modloader.LoadedMod;
 import ch.aiko.modloader.ModLoader;
+import ch.aiko.pokemon.basic.PokemonEvents;
 
 public class ServerListener {
 
@@ -46,7 +47,7 @@ public class ServerListener {
 	}
 
 	public boolean existsUUID(String uuid) {
-		for (Player p : PokemonServer.handler.p) {
+		for (ServerPlayer p : PokemonServer.handler.p) {
 			if (p.uuid.equals(uuid)) return true;
 		}
 		return false;
@@ -103,6 +104,7 @@ public class ServerListener {
 	}
 
 	private void perform(String received, Socket s) {
+		ModLoader.performEvent(new PokemonEvents.StringReceivedEvent(received, s));
 		if (!clients.contains(s)) return;
 		if (received.equalsIgnoreCase("/ruuid/")) {
 			String uuid = genUUID();
@@ -116,7 +118,7 @@ public class ServerListener {
 			send(s, "/lvl/" + PokemonServer.handler.getPlayer(uuids.get(clients.indexOf(s))).currentLevel);
 		}
 		if (received.equalsIgnoreCase("/rpos/")) {
-			Player p = PokemonServer.handler.getPlayer(uuids.get(clients.indexOf(s)));
+			ServerPlayer p = PokemonServer.handler.getPlayer(uuids.get(clients.indexOf(s)));
 			send(s, "/pos/" + p.x + "/" + p.y + "/" + p.dir);
 		}
 		if (received.startsWith("/c/")) connect(s, received.substring(3));
@@ -143,7 +145,7 @@ public class ServerListener {
 		return uuids.get(clients.indexOf(s));
 	}
 
-	public Player getPlayer(Socket s) {
+	public ServerPlayer getPlayer(Socket s) {
 		return PokemonServer.handler.getPlayer(uuids.get(clients.indexOf(s)));
 	}
 
@@ -151,8 +153,8 @@ public class ServerListener {
 		if (uuids.contains(uuid)) kickUUID(uuid);
 		PokemonServer.out.println("Player connected with uuid: " + uuid);
 		uuids.set(clients.indexOf(s), uuid);
-		Player p = PokemonServer.handler.getPlayer(uuid);
-		if (p == null) PokemonServer.handler.addPlayer(new Player(uuid));
+		ServerPlayer p = PokemonServer.handler.getPlayer(uuid);
+		if (p == null) PokemonServer.handler.addPlayer(new ServerPlayer(uuid));
 		p = PokemonServer.handler.getPlayer(uuid);
 		p.online = true;
 
@@ -164,8 +166,8 @@ public class ServerListener {
 	}
 
 	private void finishUp(Socket s) {
-		Player p = getPlayer(s);
-
+		ServerPlayer p = getPlayer(s);
+		ModLoader.performEvent(new PokemonEvents.PlayerConnectedEvent(p));
 		ASDataBase base = p.toBase();
 		byte[] bytes = new byte[base.getSize()];
 		base.getBytes(bytes, 0);
@@ -182,11 +184,11 @@ public class ServerListener {
 	}
 
 	public void setPositions(Socket s) {
-		Player p = getPlayer(s);
+		ServerPlayer p = getPlayer(s);
 		String setter = "/pset/\n";
 
 		for (int i = 0; i < PokemonServer.handler.p.size(); i++) {
-			Player p1 = PokemonServer.handler.p.get(i);
+			ServerPlayer p1 = PokemonServer.handler.p.get(i);
 			if (p != p1 && p1.online && p1.currentLevel.equalsIgnoreCase(p.currentLevel)) {
 				String player = p1.x + "/" + p1.y + "/" + p1.dir + "/" + p1.uuid;
 				setter += player + "\n";
@@ -211,10 +213,10 @@ public class ServerListener {
 	public void updatePositions() {
 		if (PokemonServer.handler == null || PokemonServer.handler.p == null) return;
 		for (int i = 0; i < PokemonServer.handler.p.size(); i++) {
-			Player p1 = PokemonServer.handler.p.get(i);
+			ServerPlayer p1 = PokemonServer.handler.p.get(i);
 			if (!p1.online) continue;
 			for (int j = i + 1; j < PokemonServer.handler.p.size(); j++) {
-				Player p = PokemonServer.handler.p.get(j);
+				ServerPlayer p = PokemonServer.handler.p.get(j);
 				if (!p.online) continue;
 				if (p1.currentLevel.equalsIgnoreCase(p.currentLevel)) {
 					Socket s = clients.get(uuids.indexOf(p.uuid));
@@ -228,7 +230,7 @@ public class ServerListener {
 	}
 
 	public void disconnect(Socket s) {
-		Player p = getPlayer(s);
+		ServerPlayer p = getPlayer(s);
 		System.out.println("Player disconnected: " + p.uuid);
 		int index = clients.indexOf(s);
 		p.online = false;

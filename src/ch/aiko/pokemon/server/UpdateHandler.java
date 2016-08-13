@@ -13,15 +13,15 @@ import ch.aiko.util.FileUtil;
 
 public class UpdateHandler {
 
-	public ArrayList<Player> p = new ArrayList<Player>();
+	public ArrayList<ServerPlayer> p = new ArrayList<ServerPlayer>();
 
 	public void setPlayerLevel(String uuid, String level) {
-		for (Player player : p)
+		for (ServerPlayer player : p)
 			if (player.uuid.equals(uuid)) player.currentLevel = level;
 	}
 
 	public void setPlayerPos(String uuid, int x, int y, int dir) {
-		for (Player player : p)
+		for (ServerPlayer player : p)
 			if (player.uuid.equals(uuid)) {
 				player.x = x;
 				player.y = y;
@@ -29,13 +29,13 @@ public class UpdateHandler {
 			}
 	}
 
-	public Player getPlayer(String uuid) {
-		for (Player player : p)
+	public ServerPlayer getPlayer(String uuid) {
+		for (ServerPlayer player : p)
 			if (player.uuid.equals(uuid)) return player;
 		return null;
 	}
 
-	public void addPlayer(Player player) {
+	public void addPlayer(ServerPlayer player) {
 		p.add(player);
 	}
 
@@ -63,7 +63,7 @@ public class UpdateHandler {
 
 	private void savePlayers() {
 		ASDataBase base = new ASDataBase("PlayerData");
-		for (Player player : p) {
+		for (ServerPlayer player : p) {
 			player.reload();
 			base.addObject(player);
 		}
@@ -90,7 +90,7 @@ public class UpdateHandler {
 		for (int i = 0; i < base.objectCount; i++) {
 			ASObject obj = base.objects.get(i);
 			if (obj != null && obj.getName().equals("Player")) {
-				p.add(new Player(obj));
+				p.add(new ServerPlayer(obj));
 				PokemonServer.out.println("Found Player:" + p.get(p.size() - 1).uuid);
 			}
 		}
