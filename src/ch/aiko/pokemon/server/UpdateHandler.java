@@ -64,6 +64,7 @@ public class UpdateHandler {
 	private void savePlayers() {
 		ASDataBase base = new ASDataBase("PlayerData");
 		for (ServerPlayer player : p) {
+			if(player == null) continue;
 			player.reload();
 			base.addObject(player);
 		}

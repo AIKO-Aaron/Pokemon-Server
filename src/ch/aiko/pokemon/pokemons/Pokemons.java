@@ -11,6 +11,8 @@ import ch.aiko.pokemon.attacks.Attack;
 public class Pokemons {
 	
 	public static void init() {
+		PokemonState.init();
+		
 		// MEGA EVOLUTIONS
 
 		Pokemons MEGA_VENUSAUR = new Pokemons("Mega Venusaur", 1, 3);

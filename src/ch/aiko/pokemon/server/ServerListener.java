@@ -110,7 +110,7 @@ public class ServerListener {
 			String uuid = genUUID();
 			while (existsUUID(uuid))
 				uuid = genUUID();
-			System.out.println("Generated uuid: " + uuid);
+			PokemonServer.out.println("Generated uuid: " + uuid);
 			send(s, "/guuid/" + uuid);
 			connect(s, uuid);
 		}
@@ -138,6 +138,14 @@ public class ServerListener {
 		}
 		if (received.equalsIgnoreCase("/rec/")) {
 			finishUp(s);
+		}
+		if(received.startsWith("/LTT/")) {
+			int lostToTrainer = Integer.parseInt(received.substring(5));
+			System.out.println("Player: " + getPlayer(s).uuid + " got defeated by trainer: " + lostToTrainer);
+		}
+		if(received.startsWith("/DFT/")) {
+			int defeatedTrainer = Integer.parseInt(received.substring(5));
+			getPlayer(s).trainersDefeated.add(defeatedTrainer);
 		}
 	}
 
@@ -231,7 +239,7 @@ public class ServerListener {
 
 	public void disconnect(Socket s) {
 		ServerPlayer p = getPlayer(s);
-		System.out.println("Player disconnected: " + p.uuid);
+		PokemonServer.out.println("Player disconnected: " + p.uuid);
 		int index = clients.indexOf(s);
 		p.online = false;
 		try {

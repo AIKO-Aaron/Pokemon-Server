@@ -1,12 +1,15 @@
 package ch.aiko.pokemon.server;
 
+import java.util.ArrayList;
+
+import ch.aiko.as.ASArray;
 import ch.aiko.as.ASDataBase;
 import ch.aiko.as.ASDataType;
 import ch.aiko.as.ASField;
 import ch.aiko.as.ASObject;
 import ch.aiko.as.ASString;
 import ch.aiko.as.SerializationReader;
-import ch.aiko.pokemon.attacks.Attack;
+import ch.aiko.pokemon.basic.ModUtils;
 import ch.aiko.pokemon.pokemons.PokemonType;
 import ch.aiko.pokemon.pokemons.Pokemons;
 import ch.aiko.pokemon.pokemons.TeamPokemon;
@@ -17,6 +20,7 @@ public class ServerPlayer extends ASDataType {
 	public String currentLevel; // Path to level
 	public int x = 128, y = 128, dir;
 	public boolean online;
+	public ArrayList<Integer> trainersDefeated = new ArrayList<Integer>();
 	// TODO team-pokemon storing...
 	public TeamPokemon[] team = new TeamPokemon[PokemonServer.TeamSize];
 
@@ -39,21 +43,28 @@ public class ServerPlayer extends ASDataType {
 		ASField dd = c.getField("DIR");
 		ASField ts = c.getField("TEAMSIZE");
 		ASObject teamP = c.getObject("TEAM");
+		ASArray tdo = c.getArray("TD");
 		if (ts != null) team = new TeamPokemon[SerializationReader.readInt(ts.data, 0)];
 		if (uu != null) uuid = uu.toString();
 		if (pp != null) currentLevel = pp.toString();
 		if (xx != null) y = SerializationReader.readInt(xx.data, 0);
 		if (yy != null) x = SerializationReader.readInt(yy.data, 0);
 		if (dd != null) dir = SerializationReader.readInt(dd.data, 0);
+		int index = 0;
 		if (teamP != null) {
-			int index = 0;
 			for (int i = 0; i < teamP.objectCount; i++) {
 				ASObject obj = teamP.objects.get(i);
 				if (obj != null) team[index++] = new TeamPokemon(obj);
 			}
-			if(index == 0) {
-				team = new TeamPokemon[PokemonServer.TeamSize];
-				team[0] = new TeamPokemon(Pokemons.get(6), PokemonType.OWNED, "Pokemon", new Attack[4], 5, 10, 10, 10, 10, 10, 10, 10);
+		}
+		if (index == 0 || teamP == null) {
+			team = new TeamPokemon[PokemonServer.TeamSize];
+			team[0] = new TeamPokemon(Pokemons.get(6), PokemonType.OWNED, "Pokemon", ModUtils.convertToAttacks("Tackle", "Verzweifler"), 5, 10, 10, 10, 10, 10, 10, 10);
+		}
+		if (tdo != null) {
+			trainersDefeated = new ArrayList<Integer>();
+			for (int i : tdo.getIntData()) {
+				trainersDefeated.add(i);
 			}
 		}
 	}
@@ -67,9 +78,17 @@ public class ServerPlayer extends ASDataType {
 		thisObject.addField(ASField.Integer("TEAMSIZE", PokemonServer.TeamSize));
 		ASObject teamP = new ASObject("TEAM");
 		for (TeamPokemon pok : team) {
-			if (pok != null) teamP.addObject(pok.toObject());
+			if (pok != null) {
+				pok.reload();
+				teamP.addObject(pok.toObject());
+			}
 		}
 		thisObject.addObject(teamP);
+		int[] data = new int[trainersDefeated.size()];
+		for (int i = 0; i < data.length; i++)
+			data[i] = trainersDefeated.get(i);
+		thisObject.addArray(ASArray.Integer("TD", data));
+
 	}
 
 	public ASDataBase toBase() {

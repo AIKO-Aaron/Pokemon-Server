@@ -90,8 +90,8 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 		thisObject.addField(ASField.Integer("HP", (int) healthPoints));
 		thisObject.addField(ASField.Integer("MHP", maxHP));
 		thisObject.addField(ASField.Integer("NUM", type.getPokedexNumber()));
-		thisObject.addField(ASField.Integer("TYP", holder.in));
-		thisObject.addField(ASField.Integer("STATE", currentState.getID()));
+		thisObject.addField(ASField.Integer("TYP", holder == null ? PokemonType.OWNED.in : holder.in));
+		thisObject.addField(ASField.Integer("STATE", currentState == null ? PokemonState.NORMAL.getID() : currentState.getID()));
 		thisObject.addString(ASString.Create("NCN", nickname.toCharArray()));
 		ASObject atks = new ASObject("ATKS");
 		for (Attack a : getMoveSet()) {
