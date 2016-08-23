@@ -7,30 +7,29 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import ch.aiko.pokemon.attacks.Attack;
+import ch.aiko.pokemon.attacks.Type;
 
 public class Pokemons {
 	
 	public static void init() {
 		PokemonState.init();
-		
-		// MEGA EVOLUTIONS
 
-		Pokemons MEGA_VENUSAUR = new Pokemons("Mega Venusaur", 1, 3);
-		Pokemons MEGA_CHARIZARD_X = new Pokemons("Mega Charizard X", 1, 6);
-		Pokemons MEGA_CHARIZARD_Y = new Pokemons("Mega Charizard Y", 2, 6);
-		Pokemons MEGA_BLASTOISE = new Pokemons("Mega Blastoise", 1, 9);
+		Pokemons MEGA_VENUSAUR = new Pokemons("Mega Venusaur", 1, 3).setType(Type.GRASS, Type.POISON);
+		Pokemons MEGA_CHARIZARD_X = new Pokemons("Mega Charizard X", 1, 6).setType(Type.FIRE, Type.DRAGON);
+		Pokemons MEGA_CHARIZARD_Y = new Pokemons("Mega Charizard Y", 2, 6).setType(Type.FIRE, Type.FLYING);
+		Pokemons MEGA_BLASTOISE = new Pokemons("Mega Blastoise", 1, 9).setType(Type.FIRE, null);
 
 		// NORMAL POKEMON
 
-		new Pokemons("Bulbasaur", createMoveSet(null, null), 1, 16, 2);
-		new Pokemons("Ivysaur", createMoveSet(null, null), 2, 32, 3);
-		new Pokemons("Venusaur", createMoveSet(null, null), 3, MEGA_VENUSAUR);
-		new Pokemons("Charmander", createMoveSet(null, null), 4, 16, 5);
-		new Pokemons("Charmeleon", createMoveSet(null, null), 5, 36, 6);
-		new Pokemons("Charizard", createMoveSet(null, null), 6, MEGA_CHARIZARD_X, MEGA_CHARIZARD_Y);
-		new Pokemons("Squirtle", createMoveSet(null, null), 7, 16, 8);
-		new Pokemons("Wartortle", createMoveSet(null, null), 8, 36, 9);
-		new Pokemons("Blastoise", createMoveSet(null, null), 9, MEGA_BLASTOISE);
+		new Pokemons("Bulbasaur", createMoveSet(null, null), 1, 16, 2).setType(Type.GRASS, Type.POISON);
+		new Pokemons("Ivysaur", createMoveSet(null, null), 2, 32, 3).setType(Type.GRASS, Type.POISON);
+		new Pokemons("Venusaur", createMoveSet(null, null), 3, MEGA_VENUSAUR).setType(Type.GRASS, Type.POISON);
+		new Pokemons("Charmander", createMoveSet(null, null), 4, 16, 5).setType(Type.FIRE, null);
+		new Pokemons("Charmeleon", createMoveSet(null, null), 5, 36, 6).setType(Type.FIRE, null);
+		new Pokemons("Charizard", createMoveSet(null, null), 6, MEGA_CHARIZARD_X, MEGA_CHARIZARD_Y).setType(Type.FIRE, Type.FLYING);
+		new Pokemons("Squirtle", createMoveSet(null, null), 7, 16, 8).setType(Type.WATER, null);
+		new Pokemons("Wartortle", createMoveSet(null, null), 8, 36, 9).setType(Type.WATER, null);
+		new Pokemons("Blastoise", createMoveSet(null, null), 9, MEGA_BLASTOISE).setType(Type.WATER, null);
 	}
 
 	private String unlocName;
@@ -40,6 +39,7 @@ public class Pokemons {
 	private ArrayList<Pokemons> megas = new ArrayList<Pokemons>();
 	private int index, evolvesTo, evolvesFrom;
 	private HashMap<Integer, Attack> moveSet;
+	private Type type1, type2;
 
 	public Pokemons(String unlocName, HashMap<Integer, Attack> moveSet, int pokedexNumber, int lvlForEvo, int evolvesTo) {
 		this.lvlForEvo = lvlForEvo;
@@ -165,4 +165,23 @@ public class Pokemons {
 		return PokeUtil.get(i);
 	}
 
+	public Pokemons setType(Type t1, Type t2) {
+		type1 = t1;
+		type2 = t2;
+		return this;
+	}
+
+	public float getAttackModifier(Type attackType) {
+		if (type2 == null) {
+			if (type1.getsDamage(attackType)) {
+				if (attackType.isBadAgainst(type1)) return 0.5F;
+				if (attackType.isGoodAgainst(type1)) return 2;
+			} else return 0;
+		} else {
+			float mod1 = attackType.getModFor(type1);
+			float mod2 = attackType.getModFor(type2);
+			return mod1 * mod2;
+		}
+		return 1;
+	}
 }

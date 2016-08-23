@@ -190,4 +190,13 @@ public class TeamPokemon extends ASDataType implements Renderable, Updatable {
 	public int getLevel() {
 		return (int) Math.pow(xp, 1F / 3F);
 	}
+
+	public boolean isKO() {
+		return currentState == PokemonState.DEFEATED;
+	}
+
+	public float getDamageToDeal() {
+		return damageToDeal;
+	}
+
 }
