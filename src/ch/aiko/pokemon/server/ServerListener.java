@@ -171,6 +171,7 @@ public class ServerListener {
 		base.getBytes(bytes, 0);
 
 		send(s, "/SOPD/" + bytes.length);
+		PokemonServer.out.println("Syncing Player: " + uuid);
 	}
 
 	private void finishUp(Socket s) {
