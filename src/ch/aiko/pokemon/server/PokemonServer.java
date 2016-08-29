@@ -1,10 +1,13 @@
 package ch.aiko.pokemon.server;
 
+import java.io.PrintStream;
+
 import ch.aiko.modloader.ModLoader;
 import ch.aiko.pokemon.attacks.Attack;
 import ch.aiko.pokemon.basic.PokemonEvents;
 import ch.aiko.pokemon.language.Language;
 import ch.aiko.pokemon.pokemons.Pokemons;
+import ch.aiko.pokemon.settings.Settings;
 import ch.aiko.util.FileUtil;
 import ch.aiko.util.Log;
 
@@ -30,11 +33,17 @@ public class PokemonServer {
 
 	public PokemonServer() {
 		if (UpdateHandler.GUI) {
-			out.setLogMethod((m) -> UpdateHandler.log(m));
+			// out.setLogMethod((m) -> UpdateHandler.log(m));
+			System.setOut(new PrintStream(System.out) {
+				public void print(String s) {
+					UpdateHandler.log(s);
+				}
+			});
 		}
 
 		Language.setup();
 		Attack.init();
+		Settings.load();
 
 		out.println("Starting Modloader...");
 		ModLoader.loadMods(moddir, () -> load());
