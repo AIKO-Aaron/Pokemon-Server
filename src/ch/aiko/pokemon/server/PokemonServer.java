@@ -29,6 +29,10 @@ public class PokemonServer {
 	}
 
 	public PokemonServer() {
+		if (UpdateHandler.GUI) {
+			out.setLogMethod((m) -> UpdateHandler.log(m));
+		}
+
 		Language.setup();
 		Attack.init();
 

@@ -28,6 +28,14 @@ public abstract class Menu extends LayerContainer implements Renderable, Updatab
 
 	protected ArrayList<Layer> buttons = new ArrayList<Layer>();
 
+	/**
+	 * Limited functionality
+	 * Use at own risk
+	 */
+	public Menu(boolean doNotInvoke) {
+		
+	}
+	
 	public Menu(Screen parent) {
 		resetOffset = false;
 		this.parent = parent;
@@ -118,8 +126,13 @@ public abstract class Menu extends LayerContainer implements Renderable, Updatab
 			int mx = pos == null ? getMouseXInFrame(s) : pos.x;
 			int my = pos == null ? getMouseYInFrame(s) : pos.y;
 
-			if (popMouseKey(MouseEvent.BUTTON1)) if (((Button) buttons.get(index)).isInside(mx, my)) ((Button) buttons.get(index)).buttonPressed();
-
+			if (isMouseKeyPressed(MouseEvent.BUTTON1)) {
+				if (((Button) buttons.get(index)).isInside(mx, my)) ((Button) buttons.get(index)).setPressed();
+			} else if (((Button) buttons.get(index)).pressed) {
+				if (((Button) buttons.get(index)).isInside(mx, my)) ((Button) buttons.get(index)).buttonPressed();
+				else ((Button) buttons.get(index)).pressed = false;
+			}
+			
 			if (popKeyPressed(KeyEvent.VK_SPACE)) ((Button) buttons.get(index)).buttonPressed();
 
 			for (int i = 0; i < buttons.size(); i++)

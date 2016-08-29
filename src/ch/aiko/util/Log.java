@@ -16,6 +16,7 @@ public class Log extends PrintStream {
 	private static final Level DEFAULT = Level.INFO;
 
 	private static Log log1, log2, log3;
+	private Logger func;
 
 	/**
 	 * Creates a new Log instance with the output File s/currenttime in your ClassPath
@@ -25,6 +26,20 @@ public class Log extends PrintStream {
 	 */
 	public Log(String s) {
 		super(System.out, true);
+		long t = System.currentTimeMillis();
+		file = FileUtil.LoadFileInClassPath("/logs/" + s + "/" + t + ".log");
+		if (log1 == null) log1 = this;
+	}
+
+	/**
+	 * Creates a new Log instance with the output File s/currenttime in your ClassPath
+	 * 
+	 * @param s
+	 *            The path to the output File in you classpath. The outputfile's name will be the current time
+	 */
+	public Log(String s, Logger log) {
+		super(System.out, true);
+		func = log;
 		long t = System.currentTimeMillis();
 		file = FileUtil.LoadFileInClassPath("/logs/" + s + "/" + t + ".log");
 		if (log1 == null) log1 = this;
@@ -52,6 +67,19 @@ public class Log extends PrintStream {
 	 */
 	public Log(Class<?> c) {
 		super(System.out, true);
+		className = c.getSimpleName();
+		hasOutputFile = false;
+	}
+
+	/**
+	 * Creates a new Log instance without log file output, but with [classname] in front of the message
+	 * 
+	 * @param c
+	 *            The class this object is held by
+	 */
+	public Log(Class<?> c, Logger log) {
+		super(System.out, true);
+		func = log;
 		className = c.getSimpleName();
 		hasOutputFile = false;
 	}
@@ -149,9 +177,10 @@ public class Log extends PrintStream {
 	 */
 	public void print(String s, Level l) {
 		Calendar cal = Calendar.getInstance();
-		String time = String.format("%02d", cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", cal.get(Calendar.MINUTE)) + ":" + String.format("%02d", cal.get(Calendar.SECOND));		
+		String time = String.format("%02d", cal.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", cal.get(Calendar.MINUTE)) + ":" + String.format("%02d", cal.get(Calendar.SECOND));
 		s = "[" + time + "]" + (className != null ? "[" + className + "]" : "") + l.getLevelName() + " " + s;
 
+		if (func != null) func.log(s);
 		if (hasConsoleOutput) l.print(s);
 		if (hasOutputFile) FileUtil.AddToFile(s, file);
 	}
@@ -247,21 +276,21 @@ public class Log extends PrintStream {
 	public void println(long x) {
 		println("" + x);
 	}
-	
+
 	public void println(Object x) {
 		println(x.toString());
 	}
-	
+
 	public PrintStream append(char c) {
 		print(c);
 		return this;
 	}
-	
+
 	public PrintStream append(CharSequence csq) {
 		print(csq);
 		return this;
 	}
-	
+
 	public PrintStream append(CharSequence csq, int start, int end) {
 		print(csq.subSequence(start, end));
 		return this;
@@ -371,5 +400,9 @@ public class Log extends PrintStream {
 			message += part + texts[i];
 		}
 		println(message);
+	}
+
+	public void setLogMethod(Logger log) {
+		func = log;
 	}
 }
