@@ -103,6 +103,7 @@ public class UpdateHandler {
 		screen.ps = PokemonServer.out;
 		screen.startThreads();
 		screen.startCommandLineReader();
+		screen.setVisible(false);
 	}
 
 }

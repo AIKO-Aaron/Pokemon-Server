@@ -20,8 +20,6 @@ import ch.aiko.pokemon.basic.PokemonEvents;
 
 public class ServerListener {
 
-	public static final int PORT = 4732;
-
 	protected boolean running = false, sending;
 	protected Thread acceptor, receiver, sender;
 	protected ServerSocket socket;
@@ -30,7 +28,7 @@ public class ServerListener {
 	protected ArrayList<String> uuids = new ArrayList<String>();
 	protected HashMap<Socket, ArrayList<String>> texts = new HashMap<Socket, ArrayList<String>>();
 
-	public ServerListener() {
+	public ServerListener(int PORT) {
 		running = true;
 		try {
 			socket = new ServerSocket(PORT);
@@ -139,11 +137,11 @@ public class ServerListener {
 		if (received.equalsIgnoreCase("/rec/")) {
 			finishUp(s);
 		}
-		if(received.startsWith("/LTT/")) {
+		if (received.startsWith("/LTT/")) {
 			int lostToTrainer = Integer.parseInt(received.substring(5));
 			System.out.println("Player: " + getPlayer(s).uuid + " got defeated by trainer: " + lostToTrainer);
 		}
-		if(received.startsWith("/DFT/")) {
+		if (received.startsWith("/DFT/")) {
 			int defeatedTrainer = Integer.parseInt(received.substring(5));
 			getPlayer(s).trainersDefeated.add(defeatedTrainer);
 		}
@@ -171,7 +169,6 @@ public class ServerListener {
 		base.getBytes(bytes, 0);
 
 		send(s, "/SOPD/" + bytes.length);
-		PokemonServer.out.println("Syncing Player: " + uuid);
 	}
 
 	private void finishUp(Socket s) {
@@ -260,22 +257,31 @@ public class ServerListener {
 
 	private void sendText() {
 		sending = true;
+		PokemonServer.out.println("Started sending");
 		while (sending) {
-			for (int i = 0; i < clients.size(); i++) {
-				Socket s = clients.get(i);
-				if (s == null) continue;
-				ArrayList<String> textsToSend = texts.get(s);
-				if (textsToSend == null || textsToSend.size() <= 0) continue;
+			if (clients.size() == 0) {
 				try {
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-					String text = textsToSend.get(0);
-					if (text != null) for (String t : text.split("\n")) {
-						writer.write(t + "\n");
-						writer.flush();
+					Thread.sleep(100);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			} else {
+				for (int i = 0; i < clients.size(); i++) {
+					Socket s = clients.get(i);
+					if (s == null) continue;
+					ArrayList<String> textsToSend = texts.get(s);
+					if (textsToSend == null || textsToSend.size() <= 0) continue;
+					try {
+						BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+						String text = textsToSend.get(0);
+						if (text != null) for (String t : text.split("\n")) {
+							writer.write(t + "\n");
+							writer.flush();
+						}
+						texts.get(s).remove(0);
+					} catch (IOException e) {
+						e.printStackTrace(PokemonServer.out);
 					}
-					texts.get(s).remove(0);
-				} catch (IOException e) {
-					e.printStackTrace(PokemonServer.out);
 				}
 			}
 		}
