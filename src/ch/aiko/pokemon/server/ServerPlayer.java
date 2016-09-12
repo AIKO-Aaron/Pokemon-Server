@@ -19,6 +19,8 @@ public class ServerPlayer extends ASDataType {
 	public String uuid;
 	public String currentLevel; // Path to level
 	public int x = 128, y = 128, dir;
+	public int gender;
+	public String name;
 	public boolean online;
 	public ArrayList<Integer> trainersDefeated = new ArrayList<Integer>();
 	// TODO team-pokemon storing...
@@ -26,13 +28,13 @@ public class ServerPlayer extends ASDataType {
 
 	public ServerPlayer(String uuid) {
 		this.uuid = uuid;
-		if (currentLevel == null) currentLevel = "/ch/aiko/pokemon/level/test.layout";
+		if (currentLevel == null) currentLevel = "";
 		init("Player");
 	}
 
 	public ServerPlayer(ASObject obj) {
 		init(obj, "Player");
-		if (currentLevel == null) currentLevel = "/ch/aiko/pokemon/level/test.layout";
+		if (currentLevel == null) currentLevel = "";
 	}
 
 	public void load(ASObject c) {
@@ -44,12 +46,16 @@ public class ServerPlayer extends ASDataType {
 		ASField ts = c.getField("TEAMSIZE");
 		ASObject teamP = c.getObject("TEAM");
 		ASArray tdo = c.getArray("TD");
+		ASString name = c.getString("NAME");
+		ASField gender = c.getField("GENDER");
 		if (ts != null) team = new TeamPokemon[SerializationReader.readInt(ts.data, 0)];
 		if (uu != null) uuid = uu.toString();
 		if (pp != null) currentLevel = pp.toString();
 		if (xx != null) y = SerializationReader.readInt(xx.data, 0);
 		if (yy != null) x = SerializationReader.readInt(yy.data, 0);
 		if (dd != null) dir = SerializationReader.readInt(dd.data, 0);
+		if (name != null) this.name = name.toString();
+		if (gender != null) this.gender = SerializationReader.readInt(gender.data, 0);
 		int index = 0;
 		if (teamP != null) {
 			for (int i = 0; i < teamP.objectCount; i++) {
@@ -76,6 +82,8 @@ public class ServerPlayer extends ASDataType {
 		thisObject.addField(ASField.Integer("Y", y));
 		thisObject.addField(ASField.Integer("DIR", dir));
 		thisObject.addField(ASField.Integer("TEAMSIZE", PokemonServer.TeamSize));
+		thisObject.addField(ASField.Integer("GENDER", gender));
+		thisObject.addString(ASString.Create("NAME", name));
 		ASObject teamP = new ASObject("TEAM");
 		for (TeamPokemon pok : team) {
 			if (pok != null) {

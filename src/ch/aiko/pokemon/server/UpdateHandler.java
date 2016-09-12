@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import ch.aiko.as.ASDataBase;
 import ch.aiko.as.ASObject;
-import ch.aiko.engine.command.BasicCommand;
 import ch.aiko.engine.graphics.Layer;
 import ch.aiko.engine.graphics.Renderable;
 import ch.aiko.engine.graphics.Renderer;
@@ -87,7 +86,7 @@ public class UpdateHandler extends Menu implements Renderable, Updatable {
 		PokemonServer.out.println("Done");
 	}
 
-	private void savePlayers() {
+	public void savePlayers() {
 		ASDataBase base = new ASDataBase("PlayerData");
 		for (ServerPlayer player : p) {
 			if (player == null) continue;
@@ -98,15 +97,7 @@ public class UpdateHandler extends Menu implements Renderable, Updatable {
 	}
 
 	private void registerCommands() {
-		new BasicCommand("ups", "ups", 0, (String[] args, Screen sender) -> {
-			PokemonServer.out.println("" + sender.lastUPS);
-			return true;
-		});
-
-		new BasicCommand("save", "save", 1, (String[] args, Screen sender) -> {
-			savePlayers();
-			return true;
-		});
+		new ServerCommandHandler(this);
 	}
 
 	private void loadPlayers() {
@@ -145,6 +136,7 @@ public class UpdateHandler extends Menu implements Renderable, Updatable {
 	}
 
 	public void comm(MenuObject sender) {
+		if(tf.getText().replace(" ", "").equals("")) return;
 		screen.executeCommand(tf.getText(), 4);
 		tf.setText("");
 	}
@@ -155,7 +147,7 @@ public class UpdateHandler extends Menu implements Renderable, Updatable {
 
 	public void onOpen() {
 		addLayer((tf = new TextField(10, screen.getFrameHeight() - 3 * textsize, screen.getFrameWidth() - 200, 2 * textsize, "", (s) -> comm(s))));
-		addButton(new Button(screen.getFrameWidth() - 190, screen.getFrameHeight() - 3 * textsize, 180, 2 * textsize, "Send", (s) -> comm(s)).setType(Button.RECT_BUTTON), 0, 0);
+		addButton(new Button(screen.getFrameWidth() - 180, screen.getFrameHeight() - 3 * textsize, 170, 2 * textsize, "Send", (s) -> comm(s)).setType(Button.RECT_BUTTON), 0, 0);
 		tf.setOrientation(TextField.LEFT);
 	}
 

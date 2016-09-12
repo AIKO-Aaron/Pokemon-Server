@@ -138,6 +138,7 @@ public class Button extends MenuObject {
 
 	@Override
 	public void render(Renderer renderer) {
+		textsize = h / 2;
 		if (button_type == RECT_BUTTON) {
 			renderer.drawRect(x + (pressed ? SHRINKING : 0), y + (pressed ? SHRINKING : 0), w - (pressed ? 2 * SHRINKING : 0), h - (pressed ? 2 * SHRINKING : 0), selected ? 0xFFFF00FF : 0xFF000000, THICKNESS);
 			renderer.fillRect(x + (pressed ? SHRINKING : 0) + THICKNESS, y + (pressed ? SHRINKING : 0) + THICKNESS, w - 2 * THICKNESS - 1 - (pressed ? 2 * SHRINKING : 0), h - 2 * THICKNESS - 1 - (pressed ? 2 * SHRINKING : 0), 0xFFFFFFFF);
@@ -146,12 +147,12 @@ public class Button extends MenuObject {
 			renderer.drawOval(x + (pressed ? SHRINKING : 0), y + (pressed ? SHRINKING : 0), w - (pressed ? 2 * SHRINKING : 0), h - (pressed ? 2 * SHRINKING : 0), selected ? 0xFFFF00FF : 0xFFFFFFFF, 5);
 		}
 		int xstart = x + (w - getStringWidth(renderer.getScreen(), new Font(Settings.font, 0, textsize), text)) / 2;
-		while (xstart < x + 20 + (pressed ? 2 * SHRINKING : 0)) {
+		while (xstart < x + 20 - (pressed ? 2 * SHRINKING : 0)) {
 			textsize--;
 			xstart = x + (w - getStringWidth(renderer.getScreen(), new Font(Settings.font, 0, textsize), text)) / 2;
 		}
 		int ystart = y + (h - getStringHeight(renderer.getScreen(), new Font(Settings.font, 0, textsize))) / 3;
-		renderer.drawText(text, Settings.font, textsize, 0, xstart, ystart, selected ? 0xFFFF00FF : 0xFFFFFFFF);
+		renderer.drawText(text, Settings.font, textsize, 0, xstart, ystart, selected ? 0xFFFF00FF: 0xFFFFFFFF);
 	}
 
 	public void buttonPressed() {

@@ -74,7 +74,7 @@ public class Language extends PropertyUtil {
 
 				file.close();
 			} catch (IOException e) {
-				e.printStackTrace(PokemonServer.out);
+				e.printStackTrace();
 			}
 		}
 
@@ -82,9 +82,9 @@ public class Language extends PropertyUtil {
 		languages.clear();
 		for (String f : langFiles) {
 			if (f.startsWith(".") || !f.endsWith(".lang")) continue;
-			String key = f.replace("lang", "").replace(".", "").split("/")[f.replace("lang", "").replace(".", "").split("/").length - 1].replace("/", "");
-			languages.put(key, new Language(f));
+			languages.put(f.replace("lang", "").replace(".", "").split("/")[f.replace("lang", "").replace(".", "").split("/").length - 1].replace("/", ""), new Language(f));
 		}
+
 		loadLanguage(defaultLang);
 	}
 
@@ -116,6 +116,7 @@ public class Language extends PropertyUtil {
 	}
 
 	public static String translate(String s) {
+		s = replaceKeys(s);
 		s = s.replace("/", " / ");
 		String ret = "";
 		for (String part : s.split(" ")) {
@@ -124,6 +125,7 @@ public class Language extends PropertyUtil {
 		ret = ret.substring(0, ret.length() - 1);
 		ret = ret.replace(" / ", "/");
 		ret = ret.substring(0, 1).toUpperCase() + ret.substring(1);
+		ret = replaceKeys(ret);
 		return ret;
 	}
 
@@ -133,5 +135,14 @@ public class Language extends PropertyUtil {
 
 	public String getLanguageName() {
 		return getValue(__lang);
+	}
+
+	public static String replaceKeys(String s) {
+		return s;
+	}
+	
+	public static String replace(String s, String key, String value, boolean translation) {
+		if(s.contains(key)) return s.replace(key, translation ? translate(value) : value);
+		return s;
 	}
 }

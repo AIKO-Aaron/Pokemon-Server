@@ -112,6 +112,14 @@ public class ServerListener {
 			send(s, "/guuid/" + uuid);
 			connect(s, uuid);
 		}
+		if (received.startsWith("/chat/")) {
+			for (int i = 0; i < clients.size(); i++) {
+				Socket socket = clients.get(i);
+				if (socket != null && socket != s) {
+					send(socket, received);
+				}
+			}
+		}
 		if (received.equalsIgnoreCase("/rlvl/")) {
 			send(s, "/lvl/" + PokemonServer.handler.getPlayer(uuids.get(clients.indexOf(s))).currentLevel);
 		}
@@ -123,6 +131,12 @@ public class ServerListener {
 		if (received.startsWith("/slvl/")) {
 			PokemonServer.handler.setPlayerLevel(getUUID(s), received.substring(6));
 			updatePositions();
+		}
+		if (received.startsWith("/PGN/")) {
+			int gender = Integer.parseInt(received.substring(5).split("/")[0]);
+			String name = received.substring(5).substring(received.split("/")[0].length() + 1);
+			getPlayer(s).gender = gender;
+			getPlayer(s).name = name;
 		}
 		if (received.startsWith("/spos/")) {
 			int x = Integer.parseInt(received.substring(6).split("/")[0]);
@@ -267,6 +281,7 @@ public class ServerListener {
 				}
 			} else {
 				for (int i = 0; i < clients.size(); i++) {
+					if(clients.isEmpty()) continue;
 					Socket s = clients.get(i);
 					if (s == null) continue;
 					ArrayList<String> textsToSend = texts.get(s);
@@ -309,5 +324,14 @@ public class ServerListener {
 			if (i % 4 == 3 && i != 19) uuid += "-";
 		}
 		return uuid;
+	}
+
+	public void sendToAll(String message) {
+		for (int i = 0; i < clients.size(); i++) {
+			Socket s = clients.get(i);
+			if (s != null) {
+				send(s, message);
+			}
+		}
 	}
 }

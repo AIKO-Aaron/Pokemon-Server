@@ -69,7 +69,7 @@ public class TextField extends MenuObject implements KeyListener {
 
 		if (selected) {
 			if (input.popKeyPressed(KeyEvent.VK_ENTER)) entered();
-			else if (input.popKeyPressed(KeyEvent.VK_BACK_SPACE)) text = text.substring(0, text.length() - 1);
+			else if (input.popKeyPressed(KeyEvent.VK_BACK_SPACE) && text.length() > 0) text = text.substring(0, text.length() - 1);
 		}
 	}
 
